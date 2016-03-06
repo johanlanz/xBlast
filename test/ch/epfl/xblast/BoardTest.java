@@ -58,7 +58,7 @@ public class BoardTest{
            for(int i = 0; i<13; i++){
                for(int j = 0; j<15; j++){
                    Cell c = new Cell(i,j);
-                   assertEquals(Block.FREE, Board.blockAt(c));
+                   assertEquals(Block.FREE, b.blockAt(c));
                }
            }
        }
@@ -102,20 +102,20 @@ public class BoardTest{
            for(int i = 1; i<13; i++){
                for(int j = 1; j<11; j++){
                    Cell c = new Cell(i,j);
-                   assertEquals(Block.FREE, Board.blockAt(c));
+                   assertEquals(Block.FREE, b.blockAt(c));
                }
            }
            for(int i = 0; i<15; i++){
                Cell cTop = new Cell(i, 0);
                Cell cBottom = new Cell(i,13);
-               assertEquals(Block.INDESTRUCTIBLE_WALL, Board.blockAt(cTop));
-               assertEquals(Block.INDESTRUCTIBLE_WALL, Board.blockAt(cBottom));
+               assertEquals(Block.INDESTRUCTIBLE_WALL, b.blockAt(cTop));
+               assertEquals(Block.INDESTRUCTIBLE_WALL, b.blockAt(cBottom));
            }
            for(int j = 0; j<13; j++){
                Cell fstCol = new Cell(0, j);
                Cell lstCol = new Cell(14, j);
-               assertEquals(Block.INDESTRUCTIBLE_WALL, Board.blockAt(fstCol));
-               assertEquals(Block.INDESTRUCTIBLE_WALL, Board.blockAt(lstCol));
+               assertEquals(Block.INDESTRUCTIBLE_WALL, b.blockAt(fstCol));
+               assertEquals(Block.INDESTRUCTIBLE_WALL, b.blockAt(lstCol));
            }
            
        }

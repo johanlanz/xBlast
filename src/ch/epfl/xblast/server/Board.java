@@ -164,7 +164,7 @@ public final class Board {
      * @param c Cell d'ou on veut connaitre la Séquence
      * @return une Sq<Block> de la Cell donnée
      */
-    public static Sq<Block> blocksAt(Cell c){
+    public Sq<Block> blocksAt(Cell c){
         return blockList.get(c.rowMajorIndex());
     }
     /**
@@ -173,7 +173,7 @@ public final class Board {
      * @param c Cell d'ou on souhaite savoir le block. 
      * @return block trouvé
      */
-    public static Block blockAt(Cell c){
+    public Block blockAt(Cell c){
         
         return blocksAt(c).head();
     }
@@ -203,7 +203,7 @@ public final class Board {
     /**
      * Cette méthode remplie la liste passée en paramètre d'une ligne ( 15 Sq<Block> ) 
      * de murs indestructibles. 
-     * 
+     * TODO : demander si ok 
      * @param blockList la liste ou l'on veut ajouté nos INDESTRUCTIBLE_WALL
      */
     private static void fillRowWithIndestructibleWall(List<Sq<Block>> blockList){
@@ -213,8 +213,11 @@ public final class Board {
         }
     }
     /**
+     * TODO : spéficier quon a utiliser cette 
+     * redéfinition dans le readme
      * Redéfinission de la méthode equals. 
      * Utilisé principalement ( pour le moment uniquement ) pour les tests unitaires. 
+     * 
      * On compare un objet o avec this. 
      * @param o objet à comparé
      * @return true si c'est les même, false sinon. 
@@ -226,7 +229,7 @@ public final class Board {
             for(int i = 0 ; i<15; i++){
                 for(int j = 0 ; j<13; j++){
                     Cell c = new Cell(i, j);
-                    if(Board.blockAt(c)!=Board.blockAt(c)){
+                    if(this.blockAt(c)!=((Board) o).blockAt(c)){
                         return false;
                     }
                 }
