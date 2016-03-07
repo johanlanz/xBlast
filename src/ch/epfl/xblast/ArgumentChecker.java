@@ -15,7 +15,7 @@ public final class ArgumentChecker {
      * Sinon elle renvoie la value passée en argument
      * @param value valeur a testé
      * @return value si value >= 0
-     * TODO : bonne manière de gérer l'exception ? 
+     *  
      */
     public static int requireNonNegative(int value)throws IllegalArgumentException{
         

@@ -47,8 +47,9 @@ public final class Cell {
     }
     
     /**
-     * TODO: commenter cette méthode 
-     * @return
+     * Cette méthode retourne l'index d'une Cell (this) 
+     * Pour ce faire on fait simplement l'indice y * Col et on ajoute l'indice x 
+     * @return l'index ainsi obtenu
      */
     public int rowMajorIndex(){
         

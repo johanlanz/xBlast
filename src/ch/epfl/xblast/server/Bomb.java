@@ -33,9 +33,13 @@ public final class Bomb {
     public Bomb(PlayerID ownerId, Cell position, Sq<Integer> fuseLengths, int range){
         
         this.ownerID = Objects.requireNonNull(ownerId);
-        this.position = Objects.requireNonNull(position);//TODO : copie plus sure ?: new Cell(position.x(), position.y())
-        Objects.requireNonNull(fuseLengths.head()); // TODO : pas la bonne exception..
-        this.fuseLengths = Objects.requireNonNull(fuseLengths);//TODO : copie plus sure
+        this.position = Objects.requireNonNull(new Cell(position.x(), position.y()));
+        
+        this.fuseLengths = Objects.requireNonNull(fuseLengths);
+        
+        if(fuseLengths.isEmpty()){
+            throw new IllegalArgumentException();
+        }
         this.range = ArgumentChecker.requireNonNegative(range);
         
     }
@@ -53,14 +57,6 @@ public final class Bomb {
     public Bomb(PlayerID ownerId, Cell position, int fuseLength, int range){
         this(ownerId, position, Sq.iterate(fuseLength, u -> u-1).limit(fuseLength-1), range);
         ArgumentChecker.requireNonNegative(fuseLength);
-        /*this.ownerID = Objects.requireNonNull(ownerId);
-        this.position = Objects.requireNonNull(position);
-        this.range = ArgumentChecker.requireNonNegative(range);
-        ArgumentChecker.requireNonNegative(fuseLength);
-        Objects.requireNonNull(fuseLength);
-        Sq<Integer> fuseL = Sq.iterate(fuseLength, u -> u-1);
-        fuseL.limit(fuseLength-1); //TODO : -1 ou pas -1...
-        this.fuseLengths = fuseL;*/
         
     }
     /**
@@ -120,14 +116,16 @@ public final class Bomb {
      * On utilise la fonction lambda pour itérer sur une séquence de Cellule et on prend chaque fois le voisin 
      * de la Cell précédente. 
      * @param dir Direction ou l'explosion se propage. 
-     * 
+     * TODO : confirmer 
      * @return Séquence de séquence de Cell ainsi obtenue 
      */
-    //TODO : vérifier si on a bien compris ce qui est demander
+    
     private Sq<Sq<Cell>> explosionArmTowards(Direction dir){
         
-        Sq<Cell>arm = Sq.iterate(new Cell(position.x(), position.y()), c -> c.neighbor(dir));
-        arm.limit(range);
+        Sq<Cell> particule = Sq.iterate(position, p -> p.neighbor(dir)).limit(range);
+        
+        Sq<Sq<Cell>> arm = Sq.repeat(Ticks.EXPLOSION_TICKS, particule );
+        
         return arm;
         
     }
