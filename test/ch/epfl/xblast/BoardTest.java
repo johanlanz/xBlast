@@ -46,9 +46,9 @@ public class BoardTest{
        public void ofRowsConstructABoard(){
            List<List<Block>> listOfRows = new ArrayList<List<Block>>();
            
-           for(int i = 0; i <13; i++){
+           for(int i = 0; i <Cell.ROWS; i++){
                List<Block> row = new ArrayList<Block>();
-               for(int j = 0; j<15; j++){
+               for(int j = 0; j<Cell.COLUMNS; j++){
                    row.add(Block.FREE);
                }
                listOfRows.add(row);

@@ -36,11 +36,13 @@ public final class Player {
      */
     public Player(PlayerID id, Sq<LifeState> lifeStates, Sq<DirectedPosition> directedPos, int maxBombs, int bombRange){
         this.id = Objects.requireNonNull(id);
-        this.lifeStates = lifeStates;
-        this.directedPos = directedPos;
-        
+        this.lifeStates = Objects.requireNonNull(lifeStates);
+        this.directedPos = Objects.requireNonNull(directedPos);
+        if(lifeStates.isEmpty()||directedPos.isEmpty()){
+            throw new IllegalArgumentException(); //TODO : necessaire ou pas ? 
+        }
         this.maxBombs = ArgumentChecker.requireNonNegative(maxBombs);
-        this.bombRange = ArgumentChecker.requireNonNegative(maxBombs);
+        this.bombRange = ArgumentChecker.requireNonNegative(bombRange);
         
     }
     /**
@@ -113,7 +115,7 @@ public final class Player {
     public Sq<LifeState> statesForNextLife(){
         Sq<LifeState> dying = Sq.repeat(Ticks.PLAYER_DYING_TICKS, new LifeState(this.lives(), State.DYING));
         
-        if(lifeStates.head().lives() -1 == 0){
+        if(lifeStates.head().lives()  == 1){
             return dying.concat(Sq.constant(new LifeState(0, State.DEAD)));
         }
         Sq<LifeState> beginNewLife = Sq.repeat(Ticks.PLAYER_INVULNERABLE_TICKS, new LifeState(this.lives(), State.INVULNERABLE));
@@ -293,7 +295,7 @@ public final class Player {
          * @return la Sq ainsi obtenue 
          */
         public static Sq<DirectedPosition> moving(DirectedPosition p){
-            return Sq.iterate(p, pNext -> new DirectedPosition(p.position.neighbor(p.dir), p.dir)); // withPosition(p.position.neighbor(p.dir)));// TODO  static ?  : mieux ca ?  //TODO : lambdra ok ? ...
+            return Sq.iterate(p, pNext -> new DirectedPosition(p.position.neighbor(p.dir), p.dir));
         }
         /**
          * 
