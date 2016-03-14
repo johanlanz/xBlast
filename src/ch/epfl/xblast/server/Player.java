@@ -39,7 +39,7 @@ public final class Player {
         this.lifeStates = Objects.requireNonNull(lifeStates);
         this.directedPos = Objects.requireNonNull(directedPos);
         if(lifeStates.isEmpty()||directedPos.isEmpty()){
-            throw new IllegalArgumentException(); //TODO : necessaire ou pas ? 
+            throw new IllegalArgumentException(); 
         }
         this.maxBombs = ArgumentChecker.requireNonNegative(maxBombs);
         this.bombRange = ArgumentChecker.requireNonNegative(bombRange);

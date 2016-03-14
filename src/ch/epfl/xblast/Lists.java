@@ -2,7 +2,6 @@ package ch.epfl.xblast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -42,76 +41,39 @@ public final class Lists {
             return lmirror;
         
     }
-    
+    /**
+     * On commence par créer une liste vide qui va accueillir les permutations de l. 
+     * Ensuite on vérifie si la taille est strictement inférieure à 2 si oui -> on ajoute simplement l à lPermutations et on return lPermutations
+     * Sinon : 
+     * On fait une récursion sur la subList de l en prennant tous les éléments sauf le premier. 
+     * Ensuite pour chaque permutations obtenue sur la subList de l on la prend et on ajoute le premier élément que l'on a omis de la subList
+     * on l'ajoute à chaque position de 0 à permutation.size et à chaque fois après l'ajout du premier élément
+     * on ajoute la liste obtenue à notre liste final de permutations (lPermutations)
+     * 
+     * pour finir on return la liste obtenue après les récursion et boucles for. 
+     * 
+     * 
+     * @param l liste à partir de laquel on va faire toute les permutations. 
+     * @return une list qui contient des list de toute les permutations possible
+     */
     public static <T> List<List<T>> permutations (List<T> l){
         
-        int length = l.size();
         List<List<T>> lPermutations = new ArrayList<List<T>>();
-        if(length == 0){
-            return lPermutations;
-        }
-        
-        for(T object : l){
-            ArrayList<T> anArray = new ArrayList<T>();
-            anArray.add(object);
-            lPermutations.add(anArray);
-        }
-        
-        ArrayList<ArrayList<T>> lPermutationsProvisoire = new ArrayList<ArrayList<T>>();
-        
-        while(length>1){
-          for(List<T> element : lPermutations){
-              for(T t : l){
-                  ArrayList<T> el = new ArrayList<T>(element);
-                  if(!element.contains(t)){
-                      el.add(t);
-                      lPermutationsProvisoire.add(el);
-                  }
-              }
-          }
-          lPermutations = new ArrayList<List<T>>(lPermutationsProvisoire);
-          lPermutationsProvisoire = new ArrayList<ArrayList<T>>();
-          --length;
-        }
-        return lPermutations;
-        
-        /*if(length < 2){
+        if(l.size() < 2){
             lPermutations.add(l);
-            return lPermutations;
-        }else if(length == 2){
-            lPermutations.add(l);
-            List<T> lSwitched = new ArrayList<T>(l);
-            Collections.reverse(lSwitched);
-            lPermutations.add(lSwitched);
-            return lPermutations;
-        }else if (length > 2){
+        }else{
             
-            List<T> lSubList = l.subList(1, length);
-            lPermutations.addAll(Lists.permutations(lSubList));
-            int size = lPermutations.size();
-            for(int i = 0; i< size;i++){
-                
-                List<T> l2 = new ArrayList<T>(lPermutations.get(i));
-                
-                for(int j = 0; j<=l2.size(); j++){
-                    List<T> l3 = new ArrayList<T>(l2);
-                    l3.add(j,l.get(0));
-                    lPermutations.add(l3);
+            List<List<T>> permutationsSubList = permutations(l.subList(1, l.size()));
+            
+            for(List<T> permutation : permutationsSubList){
+                for(int i = 0; i<= permutation.size();i++){
+                    List<T> newPermutation = new ArrayList<T>(permutation);
+                    newPermutation.add(i,l.get(0));
+                    lPermutations.add(newPermutation);
                 }
             }
-        }
-        List<List<T>> lPermutationFinal = new ArrayList<List<T>>();
-        for(List list : lPermutations){
-            if(list.size()== l.size()){
-               lPermutationFinal.add(list);
-            }
-        }
-         
-        
-        
-        return lPermutationFinal;*/
-        
-        
+         }
+        return lPermutations;
     }
     
 }

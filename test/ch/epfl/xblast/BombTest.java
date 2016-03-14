@@ -24,7 +24,7 @@ public class BombTest {
     @Test
     public void BombSecondaryConstructed(){
         Bomb b = new Bomb(PlayerID.PLAYER_1, new Cell(12,12), 30, 4);
-        assertEquals(1, b.fuseLengths().tail());
+        assertEquals(30, b.fuseLength());
         
     }
     @Test (expected = IllegalArgumentException.class) //IllegalArgumentException.class NullPointerException

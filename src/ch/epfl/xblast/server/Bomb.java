@@ -74,7 +74,7 @@ public final class Bomb {
         return new Cell(position.x(), position.y());
     }
     /**
-     * retounre la séquence fuseLengths de la bombe
+     * retourne la séquence fuseLengths de la bombe
      * @return fuseLentgth
      */
     public Sq<Integer> fuseLengths(){
@@ -115,8 +115,11 @@ public final class Bomb {
      * La longueur du bras est décidé par la range de la bombe. 
      * On utilise la fonction lambda pour itérer sur une séquence de Cellule et on prend chaque fois le voisin 
      * de la Cell précédente. 
+     * 
+     * Il faut considérer chaque sous-séquence comme une particule d'explosion et sa trajectoire. Il y a des particules émise
+     * durant tout le temps d'explosion.
+     * 
      * @param dir Direction ou l'explosion se propage. 
-     * TODO : confirmer 
      * @return Séquence de séquence de Cell ainsi obtenue 
      */
     

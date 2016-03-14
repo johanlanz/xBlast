@@ -14,6 +14,8 @@ public class TicksTest {
         assertEquals(Ticks.EXPLOSION_TICKS, 30);
         assertEquals(Ticks.WALL_CRUMBLING_TICKS, 30);
         assertEquals(Ticks.BONUS_DISAPPEARING_TICKS, 30);
+        assertEquals(2400, Ticks.TOTAL_TICKS);
+        assertEquals(50000000, Ticks.TICK_NANOSECOND_DURATION);
         
     }
 }
