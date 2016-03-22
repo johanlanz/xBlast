@@ -121,7 +121,7 @@ public final class SubCell {
      */
     @Override
     public boolean equals(Object that){
-        if(that.getClass() == SubCell.class){
+        if(that instanceof SubCell){
             SubCell expected = (SubCell) that; 
             if( this.x == expected.x && this.y == expected.y){
                 return true;
@@ -146,6 +146,17 @@ public final class SubCell {
     }
     public int y(){
         return this.y;
+    }
+    /**
+     * Redéfinition de la méthode hashCode
+     * On prend l'index de rowMajorOrder -> Il est différent pour subCell. 
+     * 
+     * Il s'agit s'implement du nombre de lignes multiplié par la cte COLUMNS + l'indide de colonne
+     *@return l'indice obtenu
+     */
+    @Override
+    public int hashCode(){
+        return this.y*COLUMNS + this.x;
     }
     
 }

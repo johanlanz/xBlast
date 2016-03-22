@@ -202,6 +202,16 @@ public final class Cell {
         }
         return spiralOrder;
     }
+    /**
+     * Redéfinission de hashCode
+     * On utilise l'index de rowMajorOrder qui est convénient
+     * @return rowMajorIndex de la cell ( this ) 
+     */
+    @Override
+    public int hashCode(){
+        return this.rowMajorIndex();
+    }
+    
     
 
 }

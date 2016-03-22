@@ -1,10 +1,12 @@
 package ch.epfl.xblast.server.debug;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.epfl.xblast.Cell;
 import ch.epfl.xblast.server.Block;
 import ch.epfl.xblast.server.Board;
+import ch.epfl.xblast.server.Bomb;
 import ch.epfl.xblast.server.GameState;
 import ch.epfl.xblast.server.Player;
 
@@ -14,7 +16,8 @@ public final class GameStatePrinter {
     public static void printGameState(GameState s) {
         List<Player> ps = s.alivePlayers();
         Board board = s.board();
-
+        Set<Cell> blastedCells = s.blastedCells();
+        Set<Cell> bombedCell = s.bombedCells().keySet();
         for (int y = 0; y < Cell.ROWS; ++y) {
             xLoop: for (int x = 0; x < Cell.COLUMNS; ++x) {
                 Cell c = new Cell(x, y);
@@ -24,6 +27,20 @@ public final class GameStatePrinter {
                         continue xLoop;
                     }
                 }
+                for(Cell blastedC : blastedCells){
+                    if(blastedC.equals(c)){
+                        System.out.print(stringForBlast());
+                        continue xLoop;
+                    }
+                }
+                
+                for(Cell bombedC : bombedCell){
+                    if(bombedC.equals(c)){
+                        System.out.print(stringForBomb());
+                        continue xLoop;
+                    }
+                }
+                
                 Block b = board.blockAt(c);
                 System.out.print(stringForBlock(b));
             }
@@ -53,5 +70,13 @@ public final class GameStatePrinter {
         case BONUS_RANGE: return "+r";
         default: throw new Error();
         }
+    }
+    
+    private static String stringForBomb(){
+        return "BB";
+    }
+    
+    private static String stringForBlast(){
+        return "xx";
     }
 }

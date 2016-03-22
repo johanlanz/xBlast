@@ -29,7 +29,7 @@ public final class Board {
      */
     public Board(List<Sq<Block>> blocks)throws IllegalArgumentException{
         
-            if(blocks.size()!=195){
+            if(blocks.size()!=Cell.COLUMNS*Cell.ROWS){
                 throw new IllegalArgumentException();
             }
             

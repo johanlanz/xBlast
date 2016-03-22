@@ -55,7 +55,7 @@ public final class Bomb {
      * @param range
      */
     public Bomb(PlayerID ownerId, Cell position, int fuseLength, int range){
-        this(ownerId, position, Sq.iterate(fuseLength, u -> u-1).limit(fuseLength-1), range);
+        this(ownerId, position, Sq.iterate(fuseLength, u -> u-1).limit(fuseLength), range);
         ArgumentChecker.requireNonNegative(fuseLength);
         
     }
@@ -100,6 +100,8 @@ public final class Bomb {
      * On fait pour chaque Direction (N,S,W,E) on fait un "Bras" d'explosion à l'aide de la méthode explosionArmTowards(Direction d).
      * Ensuite on retourne la liste qui contient l'explosion
      * @return ArrayList ainsi obtenue 
+     * 
+     * TODO : on obtient 4 particules a la fois pour le cnetre de l'explosion -> meilleure manière de codé? 
      */
     public List<Sq<Sq<Cell>>> explosion(){
         List<Sq<Sq<Cell>>> explosion = new ArrayList<Sq<Sq<Cell>>>();
