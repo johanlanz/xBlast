@@ -10,7 +10,7 @@ import ch.epfl.xblast.Lists;
  * Classe Board qui définit le plateau de jeu sur lequel le jeu se déroulera. 
  * A des méthode pour construire un Board à partir d'une liste donnée 
  * @author Johan Lanzrein (257221) 
- *TODO: demander pour les exceptions -> gérer ou relancer ???
+ *
  */
 public final class Board {
     
@@ -19,7 +19,7 @@ public final class Board {
      * chaque Cell 
      */
     
-    private static List<Sq<Block>> blockList = new ArrayList<Sq<Block>>(); //TODO : is arrayList ok ? static ?
+    private List<Sq<Block>> blockList = new ArrayList<Sq<Block>>(); 
     
     /**
      * Le constructeur construits un board. 
@@ -33,7 +33,7 @@ public final class Board {
                 throw new IllegalArgumentException();
             }
             
-            blockList = new ArrayList<Sq<Block>>(blocks); //TODO : copie profonde ou pas ?
+            blockList = new ArrayList<Sq<Block>>(blocks); 
         
     }
     /**
@@ -87,9 +87,9 @@ public final class Board {
         
         fillRowWithIndestructibleWall(blockList);
         
-        for(int i = 0; i < 11; i++){
+        for(int i = 0; i < innerBlocks.size(); i++){
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
-            for(int j = 0; j<13; j++){
+            for(int j = 0; j<innerBlocks.get(i).size(); j++){
                 blockList.add(Sq.constant(innerBlocks.get(i).get(j)));
             }
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
@@ -135,7 +135,7 @@ public final class Board {
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
             List<Block> check = new ArrayList<Block>(quadrantNWBlocks.get(i));
             List<Block> mirroredRows = Lists.mirrored(check);
-            for(int j = 0 ; j<13; j++){
+            for(int j = 0 ; j<Cell.COLUMNS-2; j++){
                 blockList.add(Sq.constant(mirroredRows.get(j)));
             }
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
@@ -145,7 +145,7 @@ public final class Board {
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
             List<Block> check = new ArrayList<Block>(quadrantNWBlocks.get(i));
             List<Block> mirroredRows = Lists.mirrored(check);
-            for(int j = 0 ; j<13; j++){
+            for(int j = 0 ; j<Cell.COLUMNS-2; j++){
                 blockList.add(Sq.constant(mirroredRows.get(j)));
             }
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
@@ -203,17 +203,17 @@ public final class Board {
     /**
      * Cette méthode remplie la liste passée en paramètre d'une ligne ( 15 Sq<Block> ) 
      * de murs indestructibles. 
-     * TODO : demander si ok 
+     *  
      * @param blockList la liste ou l'on veut ajouté nos INDESTRUCTIBLE_WALL
      */
     private static void fillRowWithIndestructibleWall(List<Sq<Block>> blockList){
         
-        for(int i = 0; i<=14;i++){
+        for(int i = 0; i<Cell.COLUMNS;i++){
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
         }
     }
     /**
-     * TODO : spéficier quon a utiliser cette 
+     * TODO : spéficier quon a redéfini
      * redéfinition dans le readme
      * Redéfinission de la méthode equals. 
      * Utilisé principalement ( pour le moment uniquement ) pour les tests unitaires. 
@@ -226,8 +226,8 @@ public final class Board {
     public boolean equals(Object o){
         
         if(o.getClass() == Board.class){
-            for(int i = 0 ; i<15; i++){
-                for(int j = 0 ; j<13; j++){
+            for(int i = 0 ; i<Cell.COLUMNS; i++){
+                for(int j = 0 ; j<Cell.ROWS; j++){
                     Cell c = new Cell(i, j);
                     if(this.blockAt(c)!=((Board) o).blockAt(c)){
                         return false;

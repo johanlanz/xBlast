@@ -2,7 +2,7 @@ package ch.epfl.xblast;
 /**
  * Classe ArgumentChecker qui contient ( 01.03) 
  * une seule méthode static qui vérifie les arguments
- * bla bla bla
+ * 
  * 
  * @author Johan Lanzrein (257221) 
  *
@@ -15,7 +15,7 @@ public final class ArgumentChecker {
      * Sinon elle renvoie la value passée en argument
      * @param value valeur a testé
      * @return value si value >= 0
-     * TODO : bonne manière de gérer l'exception ? 
+     * @throws IllegalArgumentException si value < 0 
      */
     public static int requireNonNegative(int value)throws IllegalArgumentException{
         

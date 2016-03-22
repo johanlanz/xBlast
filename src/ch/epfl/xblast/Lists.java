@@ -41,5 +41,39 @@ public final class Lists {
             return lmirror;
         
     }
+    /**
+     * On commence par créer une liste vide qui va accueillir les permutations de l. 
+     * Ensuite on vérifie si la taille est strictement inférieure à 2 si oui -> on ajoute simplement l à lPermutations et on return lPermutations
+     * Sinon : 
+     * On fait une récursion sur la subList de l en prennant tous les éléments sauf le premier. 
+     * Ensuite pour chaque permutations obtenue sur la subList de l on la prend et on ajoute le premier élément que l'on a omis de la subList
+     * on l'ajoute à chaque position de 0 à permutation.size et à chaque fois après l'ajout du premier élément
+     * on ajoute la liste obtenue à notre liste final de permutations (lPermutations)
+     * 
+     * pour finir on return la liste obtenue après les récursion et boucles for. 
+     * 
+     * 
+     * @param l liste à partir de laquel on va faire toute les permutations. 
+     * @return une list qui contient des list de toute les permutations possible
+     */
+    public static <T> List<List<T>> permutations (List<T> l){
+        
+        List<List<T>> lPermutations = new ArrayList<List<T>>();
+        if(l.size() < 2){
+            lPermutations.add(l);
+        }else{
+            
+            List<List<T>> permutationsSubList = permutations(l.subList(1, l.size()));
+            
+            for(List<T> permutation : permutationsSubList){
+                for(int i = 0; i<= permutation.size();i++){
+                    List<T> newPermutation = new ArrayList<T>(permutation);
+                    newPermutation.add(i,l.get(0));
+                    lPermutations.add(newPermutation);
+                }
+            }
+         }
+        return lPermutations;
+    }
     
 }

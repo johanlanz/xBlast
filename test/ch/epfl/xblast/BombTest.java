@@ -3,6 +3,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import ch.epfl.cs108.Sq;
@@ -22,7 +24,7 @@ public class BombTest {
     @Test
     public void BombSecondaryConstructed(){
         Bomb b = new Bomb(PlayerID.PLAYER_1, new Cell(12,12), 30, 4);
-        assertEquals(1, b.fuseLengths().tail());
+        assertEquals(30, b.fuseLength());
         
     }
     @Test (expected = IllegalArgumentException.class) //IllegalArgumentException.class NullPointerException
@@ -31,6 +33,13 @@ public class BombTest {
     }
     
     @Test
-    public void 
+    public void explosionWorksAsIntended(){
+        Bomb b = new Bomb(PlayerID.PLAYER_1, new Cell(2,3), 4, 4);
+        List<Sq<Sq<Cell>>> expl = b.explosion();
+        for(Sq<Sq<Cell>> outerSq : expl){
+            assertEquals(b.position(), outerSq.head().head());
+            System.out.println(outerSq.toString());
+        }
+    }
 
 }

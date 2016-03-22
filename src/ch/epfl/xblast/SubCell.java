@@ -112,7 +112,7 @@ public final class SubCell {
         }
     }
     /**
-     * Redéfinition de la méthode equals
+     * Redéfinition de la méthode equals TODO : précier que je lai redefinis
      * On teste si : 
      * - Classe est SubCell, 
      * - les coordonnées sont identiques
@@ -122,7 +122,7 @@ public final class SubCell {
     @Override
     public boolean equals(Object that){
         if(that.getClass() == SubCell.class){
-            SubCell expected = (SubCell) that; //TODO : better way to write ??? 
+            SubCell expected = (SubCell) that; 
             if( this.x == expected.x && this.y == expected.y){
                 return true;
             }
