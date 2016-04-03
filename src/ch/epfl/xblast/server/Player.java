@@ -295,7 +295,7 @@ public final class Player {
          * @return la Sq ainsi obtenue 
          */
         public static Sq<DirectedPosition> moving(DirectedPosition p){
-            return Sq.iterate(p, pNext -> new DirectedPosition(p.position.neighbor(p.dir), p.dir));
+            return Sq.iterate(p, pNext -> new DirectedPosition(pNext.position.neighbor(p.dir), p.dir));
         }
         /**
          * 

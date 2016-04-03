@@ -28,7 +28,8 @@ public final class GameStatePrinter {
                     }
                 }
                 for(Cell blastedC : blastedCells){
-                    if(blastedC.equals(c)){
+                    Block b = board.blockAt(c);
+                    if(blastedC.equals(c)&&b.isFree()){
                         System.out.print(stringForBlast());
                         continue xLoop;
                     }
@@ -50,33 +51,34 @@ public final class GameStatePrinter {
 
     private static String stringForPlayer(Player p) {
         StringBuilder b = new StringBuilder();
-        b.append(p.id().ordinal() + 1);
+        b.append("\u001b[44m"+(p.id().ordinal() + 1));
         switch (p.direction()) {
         case N: b.append('^'); break;
         case E: b.append('>'); break;
         case S: b.append('v'); break;
         case W: b.append('<'); break;
         }
+        b.append("\u001b[m");
         return b.toString();
     }
 
     private static String stringForBlock(Block b) {
         switch (b) {
         case FREE: return "  ";
-        case INDESTRUCTIBLE_WALL: return "##";
-        case DESTRUCTIBLE_WALL: return "??";
-        case CRUMBLING_WALL: return "¿¿";
-        case BONUS_BOMB: return "+b";
-        case BONUS_RANGE: return "+r";
+        case INDESTRUCTIBLE_WALL: return "\u001b[47m  \u001b[m";
+        case DESTRUCTIBLE_WALL: return "\u001b[47m\u001b[30m??\u001b[m";
+        case CRUMBLING_WALL: return "\u001b[47m\u001b[30m¿¿\u001b[m";
+        case BONUS_BOMB: return "\u001b[41m+b\u001b[m";
+        case BONUS_RANGE: return "\u001b[41m+r\u001b[m";
         default: throw new Error();
         }
     }
     
     private static String stringForBomb(){
-        return "BB";
+        return "\u001b[42mBB\u001b[m";
     }
     
     private static String stringForBlast(){
-        return "xx";
+        return "\u001b[43m**\u001b[m";
     }
 }

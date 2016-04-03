@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -132,10 +134,25 @@ public class GameStateTest {
         List<Sq<Sq<Cell>>> explosions = new ArrayList<Sq<Sq<Cell>>>();
         explosions.addAll(b1.explosion());//explosions.addAll(b2.explosion());
         GameState gs = new GameState(0, board, players, bombs, explosions, new ArrayList<Sq<Cell>>());
-        for(int i = 0; i< 220; i++ ){
+        Map<PlayerID, Optional<Direction>> speedChangeEvents = new HashMap<PlayerID, Optional<Direction>>();
+        for(Player p : players){
+            speedChangeEvents.put(p.id(), Optional.empty());
+        }
+        for(int i = 0; i< 201; i++ ){
             GameStatePrinter.printGameState(gs);
-            gs = gs.next(null, new HashSet<PlayerID>());
+            gs = gs.next(speedChangeEvents, new HashSet<PlayerID>());
             System.out.println(i);
+            /*if(i == 180){
+                Bomb bBonus = new Bomb(PlayerID.PLAYER_1, new Cell(1,9), Ticks.BOMB_FUSE_TICKS, bombRange);
+                List<Sq<Sq<Cell>>> explosionsB = new ArrayList<Sq<Sq<Cell>>>();
+                explosionsB.addAll(bBonus.explosion());
+                GameState bombsTestGs = new GameState(gs.ticks(), gs.board(), gs.players(), new ArrayList<Bomb>(), explosionsB, new ArrayList<Sq<Cell>>());
+                for(int k = 0; k<100; k++){
+                    bombsTestGs = bombsTestGs.next(null, new HashSet<PlayerID>());
+                    GameStatePrinter.printGameState(bombsTestGs);
+                    System.out.println(k);
+                }
+            }*/
             
         }
         

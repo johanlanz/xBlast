@@ -108,7 +108,16 @@ public class PlayerTest {
         assertEquals(pSecondary.bombRange(), b.range());
         assertEquals(Ticks.BOMB_FUSE_TICKS, b.fuseLength());
     }
-    
+    @Test
+    public void directedPositionMoving(){
+        Player p = new Player(PlayerID.PLAYER_1, 4, new Cell(1,1), 3, 4);
+        
+        Sq<DirectedPosition> moves = DirectedPosition.moving(p.directedPositions().head());
+        for(int i = 0; i<10000; i++){
+            System.out.println("Dir : "+moves.head().direction().toString()+" Pos : " +moves.head().position().toString());
+            moves = moves.tail();
+        }
+    }
     
     
 }
