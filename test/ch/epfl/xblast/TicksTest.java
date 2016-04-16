@@ -1,21 +1,27 @@
-package ch.epfl.xblast.server;
+package ch.epfl.xblast;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import ch.epfl.xblast.Time;
 import org.junit.Test;
 
+import static ch.epfl.xblast.server.Ticks.*;
+import static org.junit.Assert.assertEquals;
+
 public class TicksTest {
-    @Test 
-    public void ticksAreCorrect(){
-        assertEquals(Ticks.BOMB_FUSE_TICKS, 100);
-        assertEquals(Ticks.PLAYER_DYING_TICKS, 8);
-        assertEquals(Ticks.PLAYER_INVULNERABLE_TICKS, 64);
-        assertEquals(Ticks.EXPLOSION_TICKS, 30);
-        assertEquals(Ticks.WALL_CRUMBLING_TICKS, 30);
-        assertEquals(Ticks.BONUS_DISAPPEARING_TICKS, 30);
-        assertEquals(2400, Ticks.TOTAL_TICKS);
-        assertEquals(50000000, Ticks.TICK_NANOSECOND_DURATION);
-        
+
+    @Test
+    public void trivialConstantsHaveCorrectValues() {
+        assertEquals(20, TICKS_PER_SECOND);
+        assertEquals(8, PLAYER_DYING_TICKS);
+        assertEquals(64, PLAYER_INVULNERABLE_TICKS);
+        assertEquals(100, BOMB_FUSE_TICKS);
+        assertEquals(30, EXPLOSION_TICKS);
+    }
+
+    @Test
+    public void composedConstantsHaveCorrectValues() {
+        assertEquals(Time.NS_PER_S / TICKS_PER_SECOND, TICK_NANOSECOND_DURATION);
+        assertEquals(2 * Time.S_PER_MIN * TICKS_PER_SECOND, TOTAL_TICKS);
+        assertEquals(EXPLOSION_TICKS, WALL_CRUMBLING_TICKS);
+        assertEquals(EXPLOSION_TICKS, BONUS_DISAPPEARING_TICKS);
     }
 }

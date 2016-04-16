@@ -50,15 +50,19 @@ public class RandomGame {
             
             i++;
             }
+            
             System.out.println("Temps restant : "+game.remainingTime()+" s.");
             game = game.next(randomness.randomSpeedChangeEvents(), randomness.randomBombDropEvents());
-            Thread.sleep(50);
-            System.out.flush();
+            
+            
            
             
-            //System.out.print("\033[2J\033[;H");
+            
             System.out.println("Tick : "+j);
             j++;
+            Thread.sleep(50);
+            //System.out.print("\033[2J\033[;H");// effacement de la console si nécessaire enlever les // devant la ligne
+            
         };
         
         System.out.println("Game over");

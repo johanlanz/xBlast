@@ -17,7 +17,7 @@ public enum Bonus {
          * @return le player en fonction de son nombre de bombe. 
          */
         public Player applyTo(Player player){
-        if(player.maxBombs()<MAX_RANGE){
+        if(player.maxBombs()<MAX_BOMBS){
             return player.withMaxBombs(player.maxBombs()+1);
         }
         return player;
@@ -34,7 +34,7 @@ public enum Bonus {
          * @return le player en fonction de la portée de ses bombes. 
          */
         public Player applyTo(Player player){
-            if(player.bombRange()<MAX_BOMBS){
+            if(player.bombRange()<MAX_RANGE){
                 return player.withBombRange(player.bombRange()+1);
             }
             return player;

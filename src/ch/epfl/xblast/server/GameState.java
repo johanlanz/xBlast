@@ -17,6 +17,7 @@ import ch.epfl.xblast.Cell;
 import ch.epfl.xblast.Direction;
 import ch.epfl.xblast.Lists;
 import ch.epfl.xblast.PlayerID;
+import ch.epfl.xblast.SubCell;
 import ch.epfl.xblast.server.Player.DirectedPosition;
 import ch.epfl.xblast.server.Player.LifeState;
 /**
@@ -27,13 +28,13 @@ import ch.epfl.xblast.server.Player.LifeState;
  *
  */
 public final class GameState {
-    private int ticks;
-    private Board board;
-    private List<Player> players;
-    private List<Bomb> bombs;
-    private List<Sq<Sq<Cell>>> explosions;
-    private List<Sq<Cell>> blasts;
-    private List<List<Player>> playerPriority = new ArrayList<List<Player>>() ;
+    private final int ticks;
+    private final Board board;
+    private final List<Player> players;
+    private final List<Bomb> bombs;
+    private final List<Sq<Sq<Cell>>> explosions;
+    private final List<Sq<Cell>> blasts;
+    private static final List<List<PlayerID>> playerPriority = playerPrioritiesList();
     private static final Random RANDOM = new Random(2016);
     /**
      * On construit un nouvel état de jeu en fonction des paramètre donnés. 
@@ -47,22 +48,25 @@ public final class GameState {
      * @param blasts les particules d'explosions actuelles
      */
     public GameState(int ticks, Board board, List<Player> players, List<Bomb> bombs, List<Sq<Sq<Cell>>> explosions, List<Sq<Cell>> blasts){
+        if(players.size()!= 4){
+            throw new IllegalArgumentException();
+        }
         this.ticks = ArgumentChecker.requireNonNegative(ticks);
         this.board = Objects.requireNonNull(board); 
         this.players = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Player>(players)));
         this.bombs = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Bomb>(bombs)));
         this.explosions = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Sq<Sq<Cell>>>(explosions)));
         this.blasts = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Sq<Cell>>(blasts)));
-        if(playerPriority.isEmpty()){
-            playerPriority = new ArrayList<List<Player>>(playerPrioritiesList());
-        }
+
+       
+        
     }
     /**
      * Construit un état de jeu avec comme paramètre de base imposé : 
      * ticks = 0 et des liste de bombs, explosions et blast vide 
-     * --> utilisé pour une nouvelle partie (?) 
-     * @param board
-     * @param players
+     * --> utilisé pour une nouvelle partie principalement
+     * @param board le board du gameState
+     * @param players la liste des joueurs qui vont participer a la partie
      */
     public GameState(Board board, List<Player> players){
         this(0, board, players, new ArrayList<Bomb>(), new ArrayList<Sq<Sq<Cell>>>(), new ArrayList<Sq<Cell>>());
@@ -82,7 +86,7 @@ public final class GameState {
      * @return true/ false en fonction de ce qui est expliqué plus haut
      */
     public boolean isGameOver(){
-        if(Ticks.TOTAL_TICKS == this.ticks){
+        if(Ticks.TOTAL_TICKS <= this.ticks){
             return true;
         }
         
@@ -121,7 +125,7 @@ public final class GameState {
      * @return une liste des joueurs en jeu
      */
     public List<Player> players(){
-        return new ArrayList<Player>(players);
+        return Collections.unmodifiableList(new ArrayList<Player>(players));
     }
     /**
      *
@@ -134,14 +138,13 @@ public final class GameState {
                 alivePlayers.add(p);
             }
         }
-        return alivePlayers;
+        return Collections.unmodifiableList(alivePlayers);
     }
     /**
      * 1ère partie : 
      * On prend les blasts actuels ( blasts0) et on ajoute la queue de chaque blast si le block ou la particule est est libre. ( ainsi on vérifie
      * que la particule ne traverse pas les murs ) 
      * 2ème partie : on prend la tête de chaque explosions qui représente en fait une particule. 
-     * 
      * 
      *  
      * @param blasts0 particule d'explosions actuels
@@ -167,7 +170,7 @@ public final class GameState {
             
         }
         
-        return nextBlasts;
+        return Collections.unmodifiableList(nextBlasts);
     }
     
     /**
@@ -188,19 +191,19 @@ public final class GameState {
         for(Bomb b : bombs){
             bombedCells.put(b.position(), b);
         }
-        return bombedCells;
+        return Collections.unmodifiableMap(bombedCells);
     }
     /**
      * 
-     * @return un ensemble de toute les cellules touchées par des particules d'explosions au prochain coup d'horloge
+     * @return un ensemble de toute les cellules touchées par des particules d'explosions au coup d'horloge actuel
      */
     public Set<Cell> blastedCells(){
-        return GameState.blastedCells(nextBlasts(this.blasts, board, explosions));
+        return GameState.blastedCells(this.blasts);
     }
     /**
-     * Cette méthode privée permet de calculer les cellules blasté du prochain état de jeu. 
-     * @param blasts du prochain état de jeu
-     * @return un ensemble de cellule qui seront blaster au prochain état
+     * Cette méthode privée permet de calculer les cellules blasté a partir d'une liste de Sq<Cell> blasté. 
+     * @param blasts d'un état de jeu 
+     * @return un ensemble de cellule qui seront blaster durant cet état
      */
     private static Set<Cell> blastedCells(List<Sq<Cell>> blasts){
         Set<Cell> blastedCells = new HashSet<Cell>();
@@ -209,7 +212,7 @@ public final class GameState {
                 blastedCells.add(blast.head());
             }
         }
-        return blastedCells;
+        return Collections.unmodifiableSet(blastedCells);
     }
     
     /**
@@ -223,22 +226,25 @@ public final class GameState {
      * sinon on les ajoute a bombs1 en raccourcicant la méche d'une unité. 
      * 6) on ajoute les bombes posées par les joueurs à bombs1 avvec a méthode newlyDroppedBombs(...)
      * 7) les joueurs évoluent avec la méthode nextPlayers(...)
-     * @param speedChangeEvents
-     * @param bombDropEvents
+     * 8) on incrémente les ticks de 1
+     * 9) on créer un nouveau GameState avec les nouveau paramètres
+     * @param speedChangeEvents une Map contenant l'ID des joueur souhaitant changer de direction et leur future direction désirée
+     * @param bombDropEvents un set contenant l'ID des joueurs désirant posé une bombe
      * @return le nouvel état de jeu
      */
     public GameState next(Map<PlayerID, Optional<Direction>> speedChangeEvents, Set<PlayerID> bombDropEvents ){
     
-    List<Player> priority = priorityPlayer();
+    
+        
+    List<Player> priority = playerPriority();
     Set<Cell> consumedBonuses = new HashSet<Cell>();
     Map<PlayerID, Bonus> playerBonuses = new HashMap<PlayerID, Bonus>();
-    Set<Cell> blastedCells1 = Collections.unmodifiableSet(blastedCells());
     
-    List<Sq<Cell>> blasts1 = Collections.unmodifiableList(nextBlasts(this.blasts, board, explosions));
+    List<Sq<Cell>> blasts1 = nextBlasts(blasts, board, explosions);
     
       
     for(Player p : priority){
-        if(board.blockAt(p.position().containingCell())== Block.BONUS_BOMB||board.blockAt(p.position().containingCell())== Block.BONUS_BOMB){
+        if(board.blockAt(p.position().containingCell()).isBonus()){
             if(!consumedBonuses.contains(p.position().containingCell())){
             consumedBonuses.add(p.position().containingCell());
             playerBonuses.put(p.id(),board.blockAt(p.position().containingCell()).associatedBonus());
@@ -246,12 +252,17 @@ public final class GameState {
         }
     }
     
-    Board board1 = nextBoard(this.board, consumedBonuses, blastedCells());
+    Set<Cell> blastedCells1 = GameState.blastedCells(blasts1);
+    Board board1 = nextBoard(this.board, consumedBonuses, blastedCells1);
     List<Sq<Sq<Cell>>> explosions1Provisoire = nextExplosions(explosions);
      
     
+    List<Bomb> bombs1Provisoire = new ArrayList<Bomb>(bombs);
     List<Bomb> bombs1 = new ArrayList<Bomb>();
-    for(Bomb b : bombs){
+    
+    bombs1Provisoire.addAll(newlyDroppedBombs(priority, bombDropEvents, bombs));
+    
+    for(Bomb b : bombs1Provisoire){
         if(blastedCells1.contains(b.position())||b.fuseLength() == 1){
             explosions1Provisoire.addAll(b.explosion());
             
@@ -261,15 +272,17 @@ public final class GameState {
         }
     }
     
+    
+    
     List<Sq<Sq<Cell>>> explosions1 = Collections.unmodifiableList(explosions1Provisoire);
 
     
-    bombs1.addAll(newlyDroppedBombs(priority, bombDropEvents, bombs1));
+    
     bombs1 = Collections.unmodifiableList(bombs1);
     
-    List<Player> players1 = Collections.unmodifiableList(nextPlayers(players, playerBonuses, GameState.bombedCells(bombs1).keySet(), board1, blastedCells1, speedChangeEvents));
-    ticks++;
-    return new GameState(ticks, board1, players1, bombs1, explosions1, blasts1);
+    List<Player> players1 = nextPlayers(this.players, playerBonuses, GameState.bombedCells(bombs1).keySet(), board1, blastedCells1, speedChangeEvents);
+    int ticks1 = ticks+1;
+    return new GameState(ticks1, board1, players1, bombs1, explosions1, blasts1);
     }
     /**
      * Cette méthode s'occupe de gérer le prochain Board du GameState
@@ -336,7 +349,7 @@ public final class GameState {
                 for(int i = 0 ; i<=Ticks.BONUS_DISAPPEARING_TICKS; i++){
                     verify = verify.tail();
                 }
-                //TODO : verifier si cela fonctionne comme voulu -> a l'air ok 
+                // 
                 if(!(verify.head() == Block.FREE)){
                     Sq<Block> bonusDisapearing = Sq.repeat(Ticks.BONUS_DISAPPEARING_TICKS, board0.blockAt(c));
                     bonusDisapearing = bonusDisapearing.concat(Sq.constant(Block.FREE));
@@ -385,30 +398,51 @@ public final class GameState {
     private static List<Bomb> newlyDroppedBombs(List<Player> players0, Set<PlayerID> bombDropEvents, List<Bomb>bombs0){
         List<Bomb> bombs1 = new ArrayList<Bomb>();
         
-        for(Player p : players0){
-            if(bombDropEvents.contains(p.id())&& p.isAlive()){
-                Bomb b = p.newBomb();
-                if(!bombs0.isEmpty()){
-                    for(Bomb bDrop : bombs0){
-                        if(bDrop.position() != b.position()){
-                            bombs1.add(b);
-                        }
-                        
+        for (Player p : players0) {
+            if (bombDropEvents.contains(p.id()) && p.isAlive() && !reachedMax(bombs0, p)) {
+                boolean canPut = true;
+                for (Bomb b : bombs0) {
+                    if (b.position().equals(p.position().containingCell())) {
+                        canPut = false;
                     }
-                }else{
-                    bombs1.add(b);
+
+                }
+                if (canPut) {
+                    bombs1.add(p.newBomb());
                 }
             }
         }
+        return Collections.unmodifiableList(bombs1);
         
         
-        return bombs1;
+        
+        
+    }
+    /**
+     * Cette méthode calcule si un joueur a atteint le nombre max de bombes qu'il a le droit de poser. 
+     * On compte toutes les bombes de bombs0 et on a un compteur qu'on incrémente d'une unité pour chaque bombe. 
+     * Si a la fin le compteur == maxBombs du joueur -> on retourne true else false
+     * 
+     * @param bombs0 les bombes posées actuellement sur le plateau
+     * @param p le joueur en question
+     * @return true -> il a atteint son max, false sinon
+     */
+    private static boolean reachedMax(List<Bomb>bombs0, Player p){
+        
+        
+        int count = 0;
+        for(Bomb b : bombs0){
+            if(b.ownerId()==p.id()){
+                count++;
+            }
+        }
+        return count==p.maxBombs();
     }
     /**
      * Cette méthode s'occupe du développement des joueurs d'un tick à l'autre. 
      * Pour simplifier la tâche on a décomposer l'évolution des joueurs en plusieurs étape : 
-     * 1) la position dirigée désirée ( en fonction du speedChangeEvents) 
-     * 2) la position dirigée effective ( qui dépendra du board et des cellules contenant des bombes ) 
+     * 1) la prochaine position dirigée ( en fonction du speedChangeEvents et avec la méhode nextPlayerDirectedPos();)
+     * 2) vérifier si il a le droit ou non d'avancer ( si oui on prend la tail de la pos.dirigée désirée si non elle reste inchangée)
      * 3) leur lifeState en fonction de si il ont été touché par des blast ou pas
      * 4) si il y a des bonus sur le joueurs en fonction de si ils sont ramassés des bonus ou pas..
      * 
@@ -423,42 +457,55 @@ public final class GameState {
     private static List<Player> nextPlayers(List<Player> players0, Map<PlayerID, Bonus> playerBonuses, Set<Cell> bombedCells1, Board board1, Set<Cell> blastedCells1, Map<PlayerID, Optional<Direction>> speedChangeEvents){
 
         List<Player> players1 = new ArrayList<Player>();
+
+        
         for(Player p : players0){
             
-            Sq<DirectedPosition> intendedDirPosition = nextPlayerCalculatedDirectedPos(p,speedChangeEvents);
-            Sq<DirectedPosition> actualDirPosition = nextPlayerEffectiveDirectedPos(intendedDirPosition, board1, bombedCells1);
-            Sq<LifeState> lifestate1 = nextPlayerLifeState(p, blastedCells1, actualDirPosition);
-            Player player1 = new Player(p.id(), lifestate1, actualDirPosition, p.maxBombs(), p.bombRange());
+                Sq<DirectedPosition> directedPositions1 = nextDirectedPositions(p,speedChangeEvents);
+                
+                if(canMoveForward(p, directedPositions1, board1, bombedCells1)){
+                    directedPositions1 = directedPositions1.tail();
+                }
+            
+                Sq<LifeState> lifestate1 = nextPlayerLifeState(p, blastedCells1, directedPositions1);
+            
+                Player player1 = new Player(p.id(), lifestate1, directedPositions1, p.maxBombs(), p.bombRange());
+            
             if(playerBonuses.containsKey(p.id())){
-                player1 = playerBonuses.get(p.id()).applyTo(player1);
-            }
-        players1.add(player1);
+                    players1.add(playerBonuses.get(p.id()).applyTo(player1));
+                }else{
+                    players1.add(player1);
+                }
+            
         }
-        return players1;
+        return Collections.unmodifiableList(players1);
             
     }
             
     /**
-     * Cette méthode va calculer le chemin théorique que le joueur emprunte. 
+     * Cette méthode va calculer le prochain directedPositions du joueur. 
+     * 
      * On commence par vérifier si la clé id du joueur est dans la Map des speedChangeEvent si non -> on a le cas trivial ou il n'y a pas de changement et 
-     * on return simplement la tail de la directedPositions actuelle du joueur. 
+     * on return simplement la directedPositions actuelle du joueur. 
      * Si oui : 
+     * 
      * Cas 1) C'est un optional empty : représente le souhait de s'arrêter. Cependant le joueur ne peut pas s'arrêter à sa guise partout. Il doit s'arrêter sur une sous case centrale. 
      * C'est pourquoi on commence a chercher la premiere sous case centrale sur la trajectoire du joueur à l'aide de findFirst. 
      * Ensuite on prend une Sq<DirectedPosition> jusqu'à cette sous case centrale. et on retourne une concaténation de la Sq<DirectedPosition> et de la séquence obtenue par la méthode static DirecetedPosition.stopped en lui passant en argument la directedPosition ou il s'arrête. 
      * 
-     * Cas 2) C'est un optional parralèle a la direction actuelle. Si la direction est identique à la direction actuelle du joueur -> Cas trivial on renvoie la tail de la directedPositions du player. 
-     * Si c'est la direction opposé ( N <-> S et E<->W ) -> On utilise la méthode static de DirectedPosition moving en lui passant comme argument, la directedPosition du player sauf que l'on modifie son attribut direction a laide de la méthode withDirection. . Ensuite on renvoie la tail de la (TODO vérifier) séquence ainsi obtenue
-     * 
+     * Cas 2) C'est un optional parralèle a la direction actuelle. Si la direction est identique à la direction actuelle du joueur -> On crée une nouvelle directedPosition avec la position actuelle du joueur et la nouvelle direction.
+     * et on return une nouvelle Sq<directedPosition>a partir de cette dernière directedPosition et la méthode DirectedPosition.moving
+     *
      * Cas 3) C'est un optional non parralèle à la direction actuelle du joueur. Dans ce cas, on prends la Sq<DirectedPosition> jusqu'à la 1ère sous case centrale ( a l'aide de la méthode takeWhile) 
      * Ensuite on cherche la DirectedPosition contennant cette sous-case centrale ( avec la méthode findFirst). 
      * On créer une 2ème Sq<DirectedPosition> qui représente le déplacement depuis cette sous case centrale. en déplacement avec la nouvelle direction ( on le ais a laide de la méthode DirectedPosition.moving()) 
      * Et on finit par return la concaténation de la 1ère Sq ( jusqu'à la sous-case centrale ) et la 2ème ( depuis la sous-case centrale) 
+     * 
      * @param player le joueur qui se déplace
      * @param speedChangeEvents une map contennant les ID des players qui ont un changement de direction et le changement en question. 
      * @return la nouvelle Sq<DirectedPosition> du joueur
      */
-    private static Sq<DirectedPosition> nextPlayerCalculatedDirectedPos(Player player, Map<PlayerID, Optional<Direction>> speedChangeEvents){
+    private static Sq<DirectedPosition> nextDirectedPositions(Player player, Map<PlayerID, Optional<Direction>> speedChangeEvents){
         
         if(speedChangeEvents.containsKey(player.id())){
             
@@ -470,64 +517,95 @@ public final class GameState {
             
         Direction intendedDir = speedChangeEvents.get(player.id()).get();
         if(intendedDir.isParallelTo(player.direction())){
-            if(intendedDir.equals(player.direction())){
-                return player.directedPositions().tail();
-            }
-            return DirectedPosition.moving(player.directedPositions().head().withDirection(intendedDir));//TODO tail ou pas tail...vérifier la question sur piazza
+            DirectedPosition placeToGo = new DirectedPosition(player.position(), intendedDir);
+            return DirectedPosition.moving(placeToGo);
         }
-            
-        Sq<DirectedPosition> untilCentralCell = DirectedPosition.moving(player.directedPositions().head()).takeWhile(p -> !p.position().isCentral());
+        
+        Sq<DirectedPosition> untilCentralCell = player.directedPositions().takeWhile(p -> !p.position().isCentral());
         DirectedPosition dirPosafterCentralCell = player.directedPositions().findFirst(p->p.position().isCentral()); 
         Sq<DirectedPosition> afterCentralCell = DirectedPosition.moving(dirPosafterCentralCell.withDirection(intendedDir));
         return untilCentralCell.concat(afterCentralCell);
         }
-        
-        return player.directedPositions().tail();
+        return player.directedPositions();
             
     }
+    
     /**
-     * Cette méhode va calculer la Sq<DirectedPosition> représentant le déplacement effectif du joueur sur le board. 
-     * On commence par trouver la prochaine case centrale qui sera atteinte par le joueur durant son déplacement. 
-     * Si elle peut accueillir le joueur on vérifie si cette case contient une bombe ou non. 
-     * Si elle contient une bombe : 
-     * -> On prend la directedPosition ou la distance entre le joueur et la sous case central de la case contenant la bombe == 6. 
-     * -> On fait une concaténation de la Sq<DirectedPosition> intendedDirPos jusqu'à cette directedPosition et une Sq<DirectedPosition> stopped ( avec la méthode de DirectedPosition) prennant pour argument la DirectedPosition ou il y a la bombe. 
-     * On retourne la Sq ainsi obtenue
-     * 
-     * Sinon : on return le paramètre intendedDirPos inchangé car le joueur peut se déplacer sans encombre. 
-     * 
-     * Si elle ne peut pas accueuillir le joueur, on fait une concaténation de intendedDirPos jusqu'à la sous case centrale de la cell actuelle du joueur et une Sq<DirectedPosition> stopped prennant pour argument une DirectedPosition ayant la sous case centrale de la cell actuelle du joueur
-     * 
-     * @param intendedDirPos la directedPosition théorique du joueur
-     * @param board0 le board à l'état actuel
-     * @param bombedCells1 les cellules qui ou des bombes sont posées
-     * @return la DirectedPositions effective du joueur au prochain coup. 
+     * Méthode pour déterminer si le joueur peut avancer ou non. On commence par vérifier si son lifeState lui permet pas d'avancer -> true return false, sinon : 
+     * - Si la prochaine cellule que le joueur vas atteindre peut être atteinte : on vérifie si sa cellule actuelle contient une bombe : Si true : 
+     *          -> True : on se référe a la méthode canMoveForwardCaseBomb(en ajoutant comme paramètre false pour le paramètre blockedByWall), False : return true;
+     * -> Si la prochaine cellule n'est pas atteignable , on vérifie si la case actuelle est contenue dans le set bombedCells : 
+     *          -> True : on se référe a la méthode canMoveForwardCaseBomb(en ajoutant comme paramètre true pour le paramètre blockedByWall),
+     *          Sinon : si la position du joueur est central on retourne false, sinon true 
+     * @param player le joueur pour lequel on décide si il peut avancer ou non
+     * @param directedPositions1 la prochaine Sq de position dirigée du joueur 
+     * @param board1 le board du prochain tick
+     * @param bombedCells1 les cellules contennant des bombes au prochain tick
+     * @return true : il peut avancer, false : il ne peut pas avancer
      */
-    private static Sq<DirectedPosition> nextPlayerEffectiveDirectedPos(Sq<DirectedPosition> intendedDirPos, Board board0, Set<Cell> bombedCells1){
-        DirectedPosition centralDirPos = intendedDirPos.findFirst(p->p.position().isCentral());
-        Cell nextCentralCell = centralDirPos.position().containingCell().neighbor(centralDirPos.direction());
+    private static boolean canMoveForward(Player player, Sq<DirectedPosition> directedPositions1, Board board1, Set<Cell> bombedCells1){
+        DirectedPosition firstCentralPosition = directedPositions1.findFirst(p-> p.position().isCentral());
+        Cell actualCell = player.position().containingCell();
+        Cell nextCell = player.position().containingCell().neighbor(firstCentralPosition.direction());
         
-        if(board0.blockAt(nextCentralCell).canHostPlayer()){
-           if(bombedCells1.contains(nextCentralCell)){
-               DirectedPosition bombBlocking = intendedDirPos.findFirst(p-> p.position().distanceToCentral()==6);
-               Sq<DirectedPosition> untilStopped = intendedDirPos.takeWhile(p -> p.position().distanceToCentral()==6);
-               return untilStopped.concat(DirectedPosition.stopped(bombBlocking));//TODO : si le joueur veut ensuite aller a gauche ou a droite..considérer le cas ou le joueur a posé la bombe ? -> semble ok 
-               
-           }
-           // cas si la case est libre et il n'y a pas de bombe -> on avance sans problème (trivial)
-           return intendedDirPos;
+        if(!player.lifeState().canMove()){
+            return false;
         }
         
-        //cas ou il fonce contre un mur sans pouvoir tourner pour éviter l'obstacle
-        Sq<DirectedPosition> untilStopped = intendedDirPos.takeWhile(p->!p.position().isCentral());
-        return untilStopped.concat(DirectedPosition.stopped(centralDirPos)); 
+        if(board1.blockAt(nextCell).canHostPlayer()){
+            return bombedCells1.contains(actualCell) ? canMoveForwardCaseBomb(player, firstCentralPosition, actualCell, false) : true;
+        }
         
+        if(bombedCells1.contains(actualCell)){
+            return canMoveForwardCaseBomb(player, firstCentralPosition, actualCell, true);
+        }
+        return !player.position().isCentral();
         
-            
+    
     }
+    
+    /**
+     * Cette méthode détermine si le joueur peut avancer dans le cas ou il est sur une case qui contient aussi une bombe. 
+     * Pour commencer on teste si il se dirige vers la bombe ( si la prochaine subCell centrale est identique a la subCell centrale de la bombe ) 
+     * Si true : 
+     * -On vérifie si la distance du joueur et de cette SubCell centrale == 6 -> si true return false;
+     * -Ensuite on vérifie si la position du joueur est centrale -> si true return l'inverse de blockedByWall ( si il est bloqué par un mur il n'avance pas, si il n'est pas bloqué par un mur il peut avancer )
+     * -Si il ne satisfait pas les deux dernière conditions il est libre d'avancer -> return true;
+     * Si false : 
+     * -retourne l'inverse de blockedByWall 
+     * @param player le joueur pour qui on détermine si il peut avancer
+     * @param nextCentralPos la prochaine position dirigée centrale du joueur. 
+     * @param bombedCell la cellule ou il y a la bombe ( aussi la cellule ou est le joueur)
+     * @param blockedByWall boolean si le joueur est bloqué dans son prochain déplacement ou non
+     * @return true si il peut avancer, false sinon 
+     */
+     private static boolean canMoveForwardCaseBomb(Player player, DirectedPosition nextCentralPos, Cell bombedCell, boolean blockedByWall){
+         SubCell centralBombedCell = SubCell.centralSubCellOf(bombedCell);
+
+         
+         if(nextCentralPos.position().equals(centralBombedCell)){
+             //Se dirige vers la bombedCell
+             if(player.position().distanceToCentral() == 6){
+                 //se trouve a 6 unité de la bombe -> bloqué par la bombe
+                 return false;
+             }
+             
+             if(player.position().isCentral()){
+                 return !blockedByWall;
+             }
+             
+             //se trouve à l'intérieur de la bombe
+             return true;
+         }
+         //Se dirige en dehor de la bombe
+         
+         return !blockedByWall;
+         
+     }
+
     /**
      * Cette méthode calcule le prochain lifeStates du player. 
-     * Si il est sur une case qui est touché par un blast (au prochain coup d'horloge ) -> On return le statesForNextLife du player. 
+     * Si il est sur une case qui est touché par un blast (au prochain coup d'horloge ) et il est vulnerable -> On return le statesForNextLife du player. 
      * Sinon on return la tail de ses lifeStates actuels        
      * @param player le joueur concerné
      * @param blastedCells1 les cells touché par une explosion
@@ -537,40 +615,48 @@ public final class GameState {
     private static Sq<LifeState> nextPlayerLifeState(Player player, Set<Cell> blastedCells1, Sq<DirectedPosition> directedPos1){
         for(Cell c : blastedCells1){
             Cell centralCell = directedPos1.head().position().containingCell();
-            if(c.equals(centralCell)){
+            if(c.equals(centralCell)&&player.lifeState().state().equals(LifeState.State.VULNERABLE)){
                 return player.statesForNextLife();
             }
         }
         return player.lifeStates().tail();
             
     }
-    
-    
-    
+   
+
     /**
-     * cette méthode calcule une liste de priorité pour les joueurs. 
-     * On prend le premier de la liste playerPriority
-     * ensuite on fait une rotation dans playerPriority l'ordre FIFO ( le premier élément est mis a la fin ) 
-     * @return l'ordre de priorité actuel des players
-     */
-    private List<Player> priorityPlayer(){
-        List<Player> priorities = new ArrayList<Player>(playerPriority.get(0));
-        
-        playerPriority.add(playerPriority.get(0));
-        playerPriority.remove(0);
-        
-        return priorities;
-        
-    }
-    /**
-     * Cette méthode ( utilise une fois ) 
-     * calcule les différentes permutations possibles parmis les joueurs
+     * Cette méthode 
+     * calcule les différentes permutations possibles parmis les ID des joueurs. Pour cela on utilise la méthode permutations de Lists.
+     * 
      * @return une list de list de permutations de joueur
      */
-    private List<List<Player>> playerPrioritiesList() {
-        List<Player> playersPerm = new ArrayList<Player>(this.players);
+    private static List<List<PlayerID>> playerPrioritiesList() {
+        List<PlayerID> playersPerm = new ArrayList<PlayerID>();
+        playersPerm.add(PlayerID.PLAYER_1);playersPerm.add(PlayerID.PLAYER_2);playersPerm.add(PlayerID.PLAYER_3);playersPerm.add(PlayerID.PLAYER_4);
         
-        return Lists.permutations(playersPerm);
+        return (Lists.permutations(playersPerm));
+    }
+    /**
+     * Pour commencer on choisis de quelle liste de playerPriority serait prioritaire ce tick. Une manière facile est ticks mod playerPriority.size -> Ceci 
+     * assure que a chaque tick une liste différente sera choisi et il y aura une répartition égale de chaque personne. 
+     * Ensuite on créer un arrayList priorities qui sera l'array list final et on ajoute les joueurs du GameState dans l'ordre d'apparition de leur ID dans idPriority. 
+     * 
+     * @return une liste non modifiable des joueur dans leur ordre de priorité
+     */
+    private List<Player> playerPriority(){
+        int priority = this.ticks%playerPriority.size();
+        ArrayList<PlayerID> idPriority = new ArrayList<PlayerID>(playerPriority.get(priority));
+        ArrayList<Player> priorities = new ArrayList<Player>();
+        
+        for(PlayerID id : idPriority){
+            
+            for(Player p : players){
+                if(id.equals(p.id())){
+                    priorities.add(p);
+                }
+            }
+        }
+        return Collections.unmodifiableList(priorities);
     }
         
 }

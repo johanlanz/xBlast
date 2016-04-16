@@ -18,6 +18,7 @@ public final class GameStatePrinter {
         Board board = s.board();
         Set<Cell> blastedCells = s.blastedCells();
         Set<Cell> bombedCell = s.bombedCells().keySet();
+
         for (int y = 0; y < Cell.ROWS; ++y) {
             xLoop: for (int x = 0; x < Cell.COLUMNS; ++x) {
                 Cell c = new Cell(x, y);

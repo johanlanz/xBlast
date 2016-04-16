@@ -3,7 +3,8 @@ package ch.epfl.xblast.server;
 import ch.epfl.xblast.Time;
 
 /**
- * Interface pour les différents type de Ticks 
+ * Interface pour les différents type de Ticks
+ * 
  * @author Johan Lanzrein(257221)
  *
  */
