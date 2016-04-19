@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import ch.epfl.cs108.Sq;
 import ch.epfl.xblast.server.Bomb;
+import ch.epfl.xblast.server.Ticks;
 public class BombTest {
     
     @Test
@@ -40,6 +41,18 @@ public class BombTest {
             assertEquals(b.position(), outerSq.head().head());
             System.out.println(outerSq.toString());
         }
+    }
+    
+    @Test
+    public void fuseLengthIsLongEnough(){
+        Bomb b = new Bomb(PlayerID.PLAYER_1, new Cell(2,3), Ticks.BOMB_FUSE_TICKS, 4);
+        Sq<Integer> fuse = b.fuseLengths();
+        for(int i = 0; i<100; i++){
+            
+            System.out.println(fuse.head());
+            fuse = fuse.tail();
+        }
+        
     }
 
 }

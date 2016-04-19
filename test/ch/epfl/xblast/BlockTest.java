@@ -21,7 +21,8 @@ public class BlockTest {
         assertFalse(Block.CRUMBLING_WALL.canHostPlayer());
         assertFalse(Block.DESTRUCTIBLE_WALL.canHostPlayer());
         assertFalse(Block.INDESTRUCTIBLE_WALL.canHostPlayer());
-        
+        assertTrue(Block.BONUS_BOMB.canHostPlayer());
+        assertTrue(Block.BONUS_RANGE.canHostPlayer());
     }
     @Test 
     public void castsShadowWorksCorrectly(){
@@ -29,5 +30,17 @@ public class BlockTest {
         assertTrue(Block.CRUMBLING_WALL.castsShadow());
         assertTrue(Block.DESTRUCTIBLE_WALL.castsShadow());
         assertTrue(Block.INDESTRUCTIBLE_WALL.castsShadow());
+        assertFalse(Block.BONUS_BOMB.castsShadow());
+        assertFalse(Block.BONUS_RANGE.castsShadow());
+    }
+    
+    @Test
+    public void isBonusWorksCorrectly(){
+        assertFalse(Block.FREE.isBonus());
+        assertFalse(Block.CRUMBLING_WALL.isBonus());
+        assertFalse(Block.DESTRUCTIBLE_WALL.isBonus());
+        assertFalse(Block.INDESTRUCTIBLE_WALL.isBonus());
+        assertTrue(Block.BONUS_BOMB.isBonus());
+        assertTrue(Block.BONUS_RANGE.isBonus());
     }
 }

@@ -1,7 +1,9 @@
 package ch.epfl.xblast;
+
 /**
  * Enum contenant l'ID des joueurs
- * @author Johan Lanzrein (257221) 
+ * 
+ * @author Johan Lanzrein (257221)
  *
  */
 public enum PlayerID {
