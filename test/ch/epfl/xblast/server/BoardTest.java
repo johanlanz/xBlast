@@ -165,7 +165,12 @@ public class BoardTest{
                    Arrays.asList(__, __, __, __, __, xx, __, xx, __, __, __, __, __ ));
            
            Board check = Board.ofInnerBlocksWalled(verify);
-           assertEquals(check, board);
+           for(int i = 0; i<Cell.ROWS; i++){
+               for(int j = 0; j<Cell.COLUMNS; j++){
+                   assertEquals(check.blockAt(new Cell(i,j)), board.blockAt(new Cell(i,j)));
+
+               }
+           }
            
            
            
