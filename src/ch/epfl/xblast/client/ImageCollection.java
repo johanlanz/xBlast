@@ -2,6 +2,8 @@ package ch.epfl.xblast.client;
 
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -23,22 +25,31 @@ public final class ImageCollection {
      * @param dirName le nom du dossier ou se trouve les images. 
      */
     public ImageCollection(String dirName){
-            images = new HashMap<Integer, Image>();
+        images = new HashMap<Integer, Image>();
 
         try {
+
             File dir = new File(ImageCollection.class.getClassLoader()
-                    .getResource(dirName)
-                    .toURI());
-            
-            
-            for(File img : dir.listFiles()){
-                int index = Integer.parseInt(img.getName().substring(0,3));
-                images.put(index, ImageIO.read(img));
+                    .getResource(dirName).toURI());
+
+            for (File img : dir.listFiles()) {
+
+                try {
+
+                    int index = Integer.parseInt(img.getName().substring(0, 3));
+                    images.put(index, ImageIO.read(img));
+
+                } catch (IOException e1) {
+                    //TODO print ? 
+                    e1.printStackTrace();
+
+                }
             }
-        } catch (Exception e1) {
-            // TODO how to handle. 
+
+        } catch (URISyntaxException e1) {
             e1.printStackTrace();
         }
+        
         
     }
     /**

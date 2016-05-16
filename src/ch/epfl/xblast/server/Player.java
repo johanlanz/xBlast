@@ -74,7 +74,7 @@ public final class Player {
              Sq.constant(new DirectedPosition(SubCell.centralSubCellOf(position), Direction.S)),
              maxBombs,
              bombRange);
-
+        //TODO demander au sujet de duplication de logique
         ArgumentChecker.requireNonNegative(lives);
 
 

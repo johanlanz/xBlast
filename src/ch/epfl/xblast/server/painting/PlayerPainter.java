@@ -48,12 +48,13 @@ public final class PlayerPainter {
         Direction dir = player.direction();
         
         if (player.isAlive()) {
-            int byteImage = 3 * dir.ordinal() + 20 * player.id().ordinal();
+            int byteImage = 20 * player.id().ordinal();
 
             State lifeState = player.lifeState().state();
 
             if (!lifeState.equals(State.DYING)) {
-
+                
+                byteImage += 3 * dir.ordinal();
                 if (lifeState.equals(State.INVULNERABLE) && tick % 2 == 1) {
                     byteImage = 80 + 3 * dir.ordinal();
                 }

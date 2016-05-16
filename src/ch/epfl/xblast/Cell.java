@@ -66,7 +66,7 @@ public final class Cell {
      */
     public int rowMajorIndex() {
 
-        return this.y * COLUMNS + this.x;
+        return y * COLUMNS + x;
 
     }
 
@@ -84,13 +84,13 @@ public final class Cell {
         switch(dir){
         
         case N: 
-            return this.y == 0 ? new Cell(this.x, ROWS - 1) : new Cell(this.x, this.y - 1);
+            return new Cell(x, y - 1);
         case S :
-            return this.y == ROWS-1 ? new Cell(this.x, 0) : new Cell(this.x, this.y + 1);
+            return  new Cell(x, y + 1);
         case E : 
-            return this.x == COLUMNS-1 ? new Cell(0, this.y) : new Cell(this.x + 1, this.y);
+            return new Cell(x + 1, y);
         case W : 
-            return this.x == 0 ? new Cell(COLUMNS - 1, this.y) : new Cell(this.x - 1, this.y);
+            return new Cell(x - 1, y);
         default : 
         return null;
         
@@ -107,10 +107,10 @@ public final class Cell {
      */
     @Override
     public boolean equals(Object that) {
-        if (that.getClass() == Cell.class) {
-            if (this.x == ((Cell) that).x && this.y == ((Cell) that).y) {
-                return true;
-            }
+        if (that.getClass() == Cell.class && !(that == null)) {
+
+            return (this.x == ((Cell) that).x && this.y == ((Cell) that).y);
+
         }
         return false;
     }
@@ -122,7 +122,7 @@ public final class Cell {
      */
     @Override
     public String toString() {
-        String message = "(" + this.x + "," + this.y + ")";
+        String message = "(" + x + "," + x + ")";
         return message;
     }
 
@@ -217,7 +217,7 @@ public final class Cell {
      */
     @Override
     public int hashCode() {
-        return this.rowMajorIndex();
+        return rowMajorIndex();
     }
 
 }

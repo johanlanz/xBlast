@@ -16,7 +16,17 @@ import ch.epfl.xblast.Lists;
  *
  */
 public final class Board {
-
+    /*
+     * Constantes utiles pour la constructions des différents board 
+     */
+    private final static int COLUMNS = Cell.COLUMNS;
+    private final static int ROWS = Cell.ROWS;
+    
+    private final static int WALLED_COLUMNS = COLUMNS-2;
+    private final static int WALLED_ROWS = ROWS-2;
+    
+    private final static int QUADRANT_COLUMNS = 7;
+    private final static int QUADRANT_ROWS = 6;
     /**
      * On note que l'index de chaque Sq<Block> renvoie a l'index en row major
      * order de chaque Cell
@@ -35,7 +45,7 @@ public final class Board {
      */
     public Board(List<Sq<Block>> blocks) throws IllegalArgumentException {
 
-        if (blocks.size() != Cell.COLUMNS * Cell.ROWS) {
+        if (blocks.size() != Cell.COUNT) {
             throw new IllegalArgumentException();
         }
 
@@ -57,7 +67,7 @@ public final class Board {
      *             si la taille n'est pas 13x15 ( col x rows )
      */
     public static Board ofRows(List<List<Block>> rows)throws IllegalArgumentException {
-        checkBlockMatrix(rows, 13, 15);
+        checkBlockMatrix(rows, ROWS, COLUMNS);
 
         List<Sq<Block>> blockList = new ArrayList<Sq<Block>>();
 
@@ -75,7 +85,7 @@ public final class Board {
     /**
      * Crée un board 13x15 complétement emmuré et l'intérieur du board est crée
      * en fonction du paramètre innerBlocks. Au début on vérifie que la liste
-     * paramètre ait des valeurs acceptable avec checkBlockMatrix. ( ici 11,13)
+     * paramètre ait des valeurs acceptable avec checkBlockMatrix. ( ici WALLED_COLUMNS,13)
      * Pour ce faire, on crée une liste de Sq<Block> qui contiendra les blocks.
      * 
      * on s'aide de la méthode nCopies de Collection pour créer une ligne complétement emmurée
@@ -85,7 +95,7 @@ public final class Board {
      * ensuite on crée notre board avec la liste ainsi obtenue
      * 
      * @param innerBlocks
-     *            list de list de block ( 11x13 ) qui servira a construire
+     *            list de list de block ( WALLED_COLUMNSx13 ) qui servira a construire
      *            l'intérieur du tableau
      * 
      * @return board ainsi créer
@@ -94,10 +104,10 @@ public final class Board {
      */
     public static Board ofInnerBlocksWalled(List<List<Block>> innerBlocks)
             throws IllegalArgumentException {
-        checkBlockMatrix(innerBlocks, 11, 13);
+        checkBlockMatrix(innerBlocks, WALLED_ROWS, WALLED_COLUMNS);
         List<Sq<Block>> blockList = new ArrayList<Sq<Block>>();
 
-        blockList.addAll(Collections.nCopies(Cell.COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
+        blockList.addAll(Collections.nCopies(COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
 
         for (int i = 0; i < innerBlocks.size(); i++) {
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
@@ -106,7 +116,7 @@ public final class Board {
             }
             blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
         }
-        blockList.addAll(Collections.nCopies(Cell.COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
+        blockList.addAll(Collections.nCopies(COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
 
         return new Board(blockList);
     }
@@ -119,7 +129,7 @@ public final class Board {
      * 
      * On s'aide de la méthode mirrored définie dans la classe Lists. Au début
      * on vérifie que la liste paramètre ait des valeurs acceptable avec
-     * checkBlockMatrix. ( ici 6,7) On utilise une liste adjuvante blockList qui
+     * checkBlockMatrix. ( ici QUADRANT_ROWS,QUADRANT_COLUMNS) On utilise une liste adjuvante blockList qui
      * contiendra les valeurs que l'on trouvera. On commence par faire une ligne
      * de murs indestructibles.(A l'aide la méthode nCopies de Collections) Ensuite on itére sur chaque ligne de
      * quadrantNWBlocks pour construire la 1ère moitié : -> on crée une liste
@@ -132,6 +142,7 @@ public final class Board {
      * 
      * On conclut en faisant une ligne de mur indestructible
      * 
+     * TODO : recommenter 
      * 
      * 
      * @param quadrantNWBlocks
@@ -142,34 +153,17 @@ public final class Board {
      *             si l'argument quadrantNWBlocks ne correspond pas a 6x7
      */
     public static Board ofQuadrantNWBlocksWalled(List<List<Block>> quadrantNWBlocks)throws IllegalArgumentException {
-        checkBlockMatrix(quadrantNWBlocks, 6, 7);
-        List<Sq<Block>> blockList = new ArrayList<Sq<Block>>();
+        checkBlockMatrix(quadrantNWBlocks, QUADRANT_ROWS, QUADRANT_COLUMNS);
+        List<List<Block>> blockList = new ArrayList<List<Block>>();
 
-        blockList.addAll(Collections.nCopies(Cell.COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
-
-        for (int i = 0; i < 6; i++) {
-            blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
-            List<Block> check = new ArrayList<Block>(quadrantNWBlocks.get(i));
-            List<Block> mirroredRows = Lists.mirrored(check);
-            for (int j = 0; j < Cell.COLUMNS - 2; j++) {
-                blockList.add(Sq.constant(mirroredRows.get(j)));
-            }
-            blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
+        for (int i = 0; i < quadrantNWBlocks.size(); i++) {
+            blockList.add(Lists.mirrored(quadrantNWBlocks.get(i)));
         }
 
-        for (int i = 4; i >= 0; i--) {
-            blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
-            List<Block> check = new ArrayList<Block>(quadrantNWBlocks.get(i));
-            List<Block> mirroredRows = Lists.mirrored(check);
-            for (int j = 0; j < Cell.COLUMNS - 2; j++) {
-                blockList.add(Sq.constant(mirroredRows.get(j)));
-            }
-            blockList.add(Sq.constant(Block.INDESTRUCTIBLE_WALL));
-        }
+        blockList = Lists.mirrored(blockList);
+        
 
-        blockList.addAll(Collections.nCopies(Cell.COLUMNS, Sq.constant(Block.INDESTRUCTIBLE_WALL)));
-
-        return new Board(blockList);
+        return ofInnerBlocksWalled(blockList);
 
     }
 

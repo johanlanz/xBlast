@@ -22,9 +22,7 @@ public final class GameStateDeserializerTest {
 
         while(!s.isGameOver()){
             s = s.next(randEvents.randomSpeedChangeEvents(), randEvents.randomBombDropEvents());
-            if(!s.blastedCells().isEmpty()){
-                System.out.println("test test");
-            }
+            
             serialized = GameStateSerializer.serialize(Level.DEFAULT_LEVEL.getBoardPainter(), s);
             GameStateDeserializer.deserializeGameState(serialized); 
         }

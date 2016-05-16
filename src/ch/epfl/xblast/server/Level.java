@@ -19,6 +19,17 @@ import ch.epfl.xblast.server.painting.BoardPainter;
 public final class Level {
     private final BoardPainter painter;
     private final GameState initialGameState;
+    
+    //Coordonnées X et Y pour initialiser les endroits de départ de joueur
+    private static final int NORTH_Y_COORDINATE = 1;
+    private static final int WEST_X_COORDINATE = 1;
+    private static final int SOUTH_Y_COORDINATE = 11;
+    private static final int EAST_X_COORDINATE = 13;
+    
+    //paramètres pour initialiser les joueurs 
+    private static final int LIVES = 3;
+    private static final int MAX_BOMBS = 2;
+    private static final int RANGE = 3;
     /**
      * Le level par défaut il est crée avec la méthode defaultLevel. 
      * Ce level par défaut est une partie nouvelle avec aucune explosion et aucune bombe et 4 joueurs
@@ -83,14 +94,11 @@ public final class Level {
             Arrays.asList(__, xx, __, xx, __, __, __),
             Arrays.asList(xx, XX, xx, XX, xx, XX, __)));
         
-        int lives = 3;
-        int maxBombs = 2;
-        int range = 3;
         
-        Player p1 = new Player(PlayerID.PLAYER_1, lives, new Cell(1,1), maxBombs, range);
-        Player p2 = new Player(PlayerID.PLAYER_2, lives, new Cell(13,1), maxBombs, range);
-        Player p3 = new Player(PlayerID.PLAYER_3, lives, new Cell(13,11), maxBombs, range);
-        Player p4 = new Player(PlayerID.PLAYER_4, lives, new Cell(1,11), maxBombs, range);
+        Player p1 = new Player(PlayerID.PLAYER_1, LIVES, new Cell(EAST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p2 = new Player(PlayerID.PLAYER_2, LIVES, new Cell(WEST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p3 = new Player(PlayerID.PLAYER_3, LIVES, new Cell(WEST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p4 = new Player(PlayerID.PLAYER_4, LIVES, new Cell(EAST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
         List<Player> players = Arrays.asList(p1,p2,p3,p4);
 
         GameState initialGame = new GameState(board, players);

@@ -4,6 +4,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import ch.epfl.xblast.PlayerID;
 import ch.epfl.xblast.SubCell;
@@ -32,14 +33,19 @@ public final class GameState {
      * @param time List des images du temps
      */
     public GameState(List<Player> players, List<Image> board, List<Image> explosions, List<Image> scores, List<Image> time){
-        this.players = Collections.unmodifiableList(new ArrayList<Player>(players));
-        this.board = Collections.unmodifiableList(new ArrayList<Image>(board));
-        this.explosions = Collections.unmodifiableList(new ArrayList<Image>(explosions));
-        this.scores = Collections.unmodifiableList(new ArrayList<Image>(scores));
-        this.time = Collections.unmodifiableList(new ArrayList<Image>(time));
+        
+        this.players = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Player>(players)));
+        this.board = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Image>(board)));
+        this.explosions = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Image>(explosions)));
+        this.scores = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Image>(scores)));
+        this.time = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Image>(time)));
+        
     }
-    /*
-     
+    
+     /**
+      * TODO commenter ces méthodes 
+      * @return
+      */
     public List<Player> players(){
         return new ArrayList<Player>(players);
     }
@@ -55,7 +61,7 @@ public final class GameState {
     }
     public List<Image> time(){
         return new ArrayList<Image>(time);
-    }*/
+    }
     
     
 
@@ -104,14 +110,20 @@ public final class GameState {
         public PlayerID id(){
             return id;
         }
-        /*
+        /**
+         * 
+         * @return position du joueur
+         */
         public SubCell position(){
             return new SubCell(position.x(), position.y());
         }
-        
+        /**
+         * 
+         * @return Image du joueur
+         */
         public Image image(){
             return image;
-        }*/
+        }
         
     }
 }
