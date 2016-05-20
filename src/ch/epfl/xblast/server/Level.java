@@ -95,10 +95,10 @@ public final class Level {
             Arrays.asList(xx, XX, xx, XX, xx, XX, __)));
         
         
-        Player p1 = new Player(PlayerID.PLAYER_1, LIVES, new Cell(EAST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
-        Player p2 = new Player(PlayerID.PLAYER_2, LIVES, new Cell(WEST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
-        Player p3 = new Player(PlayerID.PLAYER_3, LIVES, new Cell(WEST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
-        Player p4 = new Player(PlayerID.PLAYER_4, LIVES, new Cell(EAST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p1 = new Player(PlayerID.PLAYER_1, LIVES, new Cell(WEST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p2 = new Player(PlayerID.PLAYER_2, LIVES, new Cell(EAST_X_COORDINATE,NORTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p3 = new Player(PlayerID.PLAYER_3, LIVES, new Cell(EAST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
+        Player p4 = new Player(PlayerID.PLAYER_4, LIVES, new Cell(WEST_X_COORDINATE,SOUTH_Y_COORDINATE), MAX_BOMBS, RANGE);
         List<Player> players = Arrays.asList(p1,p2,p3,p4);
 
         GameState initialGame = new GameState(board, players);

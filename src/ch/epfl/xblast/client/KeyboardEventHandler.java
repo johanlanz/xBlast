@@ -41,6 +41,7 @@ public final class KeyboardEventHandler extends KeyAdapter
     @Override
     public void keyPressed(KeyEvent e){
         int keyCode = e.getKeyCode();
+        
         if(actions.containsKey(keyCode)){
            playerActions.accept(actions.get(keyCode));
         }

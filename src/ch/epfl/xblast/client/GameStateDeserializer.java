@@ -74,8 +74,8 @@ public final class GameStateDeserializer {
         List<Player> players = players(serialized, sdnBoundBombs);
         
         List<Image> scoresImage = scoresImage(players);
-        
-        List<Image> timeImage = timeImage(serialized.get(serialized.size()-1));
+        int imageIndex = sdnBoundBombs + 4*PlayerID.values().length;
+        List<Image> timeImage = timeImage(serialized.get(imageIndex));
         
         
         return new GameState(players, boardImages, bombsImage, scoresImage, timeImage);
@@ -227,7 +227,7 @@ public final class GameStateDeserializer {
      * @param time le temps restant au jeu 
      * @return list<Image> du temps 
      */
-    private static List<Image> timeImage(int time){
+    private static List<Image> timeImage(byte time){
         List<Image> timeImages = new ArrayList<Image>();
 
         timeImages.addAll(Collections.nCopies(time, SCORE.image(21)));

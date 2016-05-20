@@ -14,7 +14,7 @@ import org.junit.Test;
 import ch.epfl.xblast.PlayerID;
 import ch.epfl.xblast.client.GameStateDeserializer;
 import ch.epfl.xblast.client.KeyboardEventHandler;
-import ch.epfl.xblast.client.GraphicInterface.XblastComponent;
+import ch.epfl.xblast.client.XblastComponent;
 import ch.epfl.xblast.server.debug.RandomEventGenerator;
 import ch.epfl.xblast.PlayerAction;
 

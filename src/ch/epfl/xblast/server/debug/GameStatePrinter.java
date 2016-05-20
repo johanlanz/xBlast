@@ -6,7 +6,6 @@ import java.util.Set;
 import ch.epfl.xblast.Cell;
 import ch.epfl.xblast.server.Block;
 import ch.epfl.xblast.server.Board;
-import ch.epfl.xblast.server.Bomb;
 import ch.epfl.xblast.server.GameState;
 import ch.epfl.xblast.server.Player;
 

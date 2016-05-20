@@ -42,7 +42,7 @@ public class RandomGame {
         int j = 0;
         while(!game.isGameOver()){
             GameStatePrinter.printGameState(game);
-            int i = 1;
+            //int i = 1;
             /*for(Player p : game.players()){
             System.out.println("J"+i+" : "+p.lives()+" vies ("+p.lifeState().state()+")" );
             System.out.println("    bombes max : "+p.maxBombs()+", portée : "+p.bombRange());
