@@ -58,10 +58,10 @@ public final class SubCell {
      * @return la somme de horizontal distance et vertical distance
      */
     public int distanceToCentral() {
-        Cell cell = this.containingCell();
+        Cell cell = containingCell();
         SubCell middle = centralSubCellOf(cell);
-        int horizontalDist = Math.abs(middle.x - this.x);
-        int verticalDist = Math.abs(middle.y - this.y);
+        int horizontalDist = Math.abs(middle.x - x);
+        int verticalDist = Math.abs(middle.y - y);
         return horizontalDist + verticalDist;
     }
 
@@ -75,7 +75,7 @@ public final class SubCell {
      */
     public boolean isCentral() {
 
-        Cell cell = this.containingCell();
+        Cell cell = containingCell();
         SubCell middle = centralSubCellOf(cell);
         
         return middle.equals(this) ? true : false;
@@ -88,21 +88,21 @@ public final class SubCell {
      * @return la Cell ainsi trouvée
      */
     public Cell containingCell() {
-        int x = (this.x) / 16;
-        int y = (this.y) / 16;
-        return new Cell(x, y);
+        int xCell = (x) / 16;
+        int yCell = (y) / 16;
+        return new Cell(xCell, yCell);
     }
 
     public SubCell neighbor(Direction dir) {
         switch (dir) {
         case N:
-            return this.y == 0 ? new SubCell(this.x, ROWS-1) : new SubCell(this.x, this.y - 1);
+            return y == 0 ? new SubCell( x, ROWS-1) : new SubCell( x,  y - 1);
         case S:
-            return this.y == ROWS-1 ? new SubCell(this.x, 0) : new SubCell(this.x, this.y + 1);
+            return  y == ROWS-1 ? new SubCell( x, 0) : new SubCell( x,  y + 1);
         case E:
-            return this.x == COLUMNS-1 ? new SubCell(0, this.y) : new SubCell(this.x + 1, this.y);
+            return  x == COLUMNS-1 ? new SubCell(0,  y) : new SubCell( x + 1,  y);
         case W:
-           return this.x == 0 ? new SubCell(COLUMNS-1, this.y) : new SubCell(this.x - 1, this.y);
+           return  x == 0 ? new SubCell(COLUMNS-1,  y) : new SubCell( x - 1,  y);
         default:
             return null;
         }
@@ -118,12 +118,13 @@ public final class SubCell {
      */
     @Override
     public boolean equals(Object that) {
-        if (that instanceof SubCell) {
+        if (that instanceof SubCell && !that.equals(null)) {
             SubCell expected = (SubCell) that;
-            if (this.x == expected.x && this.y == expected.y) {
-                return true;
-            }
+            
+                return (this.x == expected.x && this.y == expected.y);
+            
         }
+        
         return false;
     }
 
@@ -140,11 +141,11 @@ public final class SubCell {
     }
 
     public int x() {
-        return this.x;
+        return  x;
     }
 
     public int y() {
-        return this.y;
+        return  y;
     }
 
     /**
@@ -158,7 +159,7 @@ public final class SubCell {
      */
     @Override
     public int hashCode() {
-        return this.y * COLUMNS + this.x;
+        return  y * COLUMNS +  x;
     }
 
 }

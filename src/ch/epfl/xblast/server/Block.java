@@ -68,7 +68,7 @@ public enum Block {
      * @return cf ligne précédente
      */
     public boolean isBonus() {
-        return this.maybeAssociatedBonus == null ? false : true;
+        return !(this.maybeAssociatedBonus == null);
     }
 
     /**

@@ -93,8 +93,8 @@ public class GameSimulation {
     	Map<PlayerID, Event> nextEvent = playersEventsGen.next();
  
         while (!nextEvent.isEmpty() && !s.isGameOver() && reference_file.hasNext()) {
-            
             s = s.next(playersEventsGen.speedChangeEvents(), playersEventsGen.bombDropEvents());
+            
             for(Player p: s.players()) {
                 List<List<Integer>> pos = GameSimulation.positionsList(reference_file.next());
                 Sq<DirectedPosition> seq = p.directedPositions();

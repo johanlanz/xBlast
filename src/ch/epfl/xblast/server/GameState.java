@@ -48,15 +48,21 @@ public final class GameState {
      * @param blasts les particules d'explosions actuelles
      */
     public GameState(int ticks, Board board, List<Player> players, List<Bomb> bombs, List<Sq<Sq<Cell>>> explosions, List<Sq<Cell>> blasts){
-        if(players.size()!= 4){
+        if(players.size()!= PlayerID.values().length){
             throw new IllegalArgumentException();
         }
         this.ticks = ArgumentChecker.requireNonNegative(ticks);
         this.board = Objects.requireNonNull(board); 
-        this.players = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Player>(players)));
-        this.bombs = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Bomb>(bombs)));
-        this.explosions = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Sq<Sq<Cell>>>(explosions)));
-        this.blasts = Objects.requireNonNull(Collections.unmodifiableList(new ArrayList<Sq<Cell>>(blasts)));
+        
+        Objects.requireNonNull(players);
+        Objects.requireNonNull(bombs);
+        Objects.requireNonNull(explosions);
+        Objects.requireNonNull(blasts);
+        
+        this.players = Collections.unmodifiableList(new ArrayList<Player>(players));
+        this.bombs = Collections.unmodifiableList(new ArrayList<Bomb>(bombs));
+        this.explosions = Collections.unmodifiableList(new ArrayList<Sq<Sq<Cell>>>(explosions));
+        this.blasts = Collections.unmodifiableList(new ArrayList<Sq<Cell>>(blasts));
 
        
         
@@ -86,11 +92,7 @@ public final class GameState {
      * @return true/ false en fonction de ce qui est expliqué plus haut
      */
     public boolean isGameOver(){
-        if(Ticks.TOTAL_TICKS <= this.ticks){
-            return true;
-        }
-        
-        return alivePlayers().size()<=1 ? true : false; 
+        return ticks>Ticks.TOTAL_TICKS || alivePlayers().size()<=1; 
     }
     /**
      * retourne le temps restant en seconde. p
@@ -125,7 +127,7 @@ public final class GameState {
      * @return une liste des joueurs en jeu
      */
     public List<Player> players(){
-        return Collections.unmodifiableList(new ArrayList<Player>(players));
+        return Collections.unmodifiableList(players);
     }
     /**
      *
@@ -303,7 +305,7 @@ public final class GameState {
      * l'avantage de la Sq verify c'est quelle nous permet de manière efficace de tester si le bonus à déja été touché par une explosion. En effet s'il 
      * a été touché par une explosion il contiendra des blocks.FREE dans sa séquence. Sinon aucun. Ainsi si la séquence verify est vide ( il n'y a pas de block.FREE) 
      * on sait que le block n'a pas été touché par une explosion.
-     * 
+     * TODO recommenter 
      * 
      * @param board0 le board à l'état actuel
      * @param consumedBonus les bonus consommés par des joueur
@@ -312,52 +314,65 @@ public final class GameState {
      */
     private static Board nextBoard(Board board0, Set<Cell> consumedBonus, Set<Cell> blastedCells1){
         List<Sq<Block>> blocksNextBoard = new ArrayList<Sq<Block>>();
+        
         for(Cell c : Cell.ROW_MAJOR_ORDER){
-            blocksNextBoard.add(board0.blocksAt(c).tail());
-        }
-        
-        for(Cell c : consumedBonus){
-            Sq<Block> free = Sq.constant(Block.FREE);
-            blocksNextBoard.set(c.rowMajorIndex(), free);
-        }
-        
-        for(Cell c : blastedCells1){
-            
-            if(board0.blockAt(c).equals(Block.DESTRUCTIBLE_WALL)){
-                Sq<Block> crumbling = Sq.repeat(Ticks.WALL_CRUMBLING_TICKS, Block.CRUMBLING_WALL);
-                
-                int rand = RANDOM.nextInt(3);
-                if(rand == 0){
-                  
-                  crumbling=crumbling.concat(Sq.constant(Block.BONUS_BOMB)); 
-                }else if(rand == 1){
-                    
-                    crumbling=crumbling.concat(Sq.constant(Block.BONUS_RANGE));
-                }else if (rand == 2){
-                  
-                  crumbling=crumbling.concat(Sq.constant(Block.FREE));
-                }
-                
-                
-                blocksNextBoard.set(c.rowMajorIndex(), crumbling);
-                
-                
-            }else if(board0.blockAt(c).equals(Block.BONUS_BOMB)||board0.blockAt(c).equals(Block.BONUS_RANGE)){
-                
 
-                Sq<Block> verify = board0.blocksAt(c);
-                for(int i = 0 ; i<=Ticks.BONUS_DISAPPEARING_TICKS; i++){
-                    verify = verify.tail();
-                }
-                // 
-                if(!(verify.head() == Block.FREE)){
-                    Sq<Block> bonusDisapearing = Sq.repeat(Ticks.BONUS_DISAPPEARING_TICKS, board0.blockAt(c));
-                    bonusDisapearing = bonusDisapearing.concat(Sq.constant(Block.FREE));
-                    blocksNextBoard.set(c.rowMajorIndex(), bonusDisapearing);
+            if (blastedCells1.contains(c)){
+                
+                if(board0.blockAt(c).equals(Block.DESTRUCTIBLE_WALL)){
+                    
+                    Sq<Block> crumbling = Sq.repeat(Ticks.WALL_CRUMBLING_TICKS, Block.CRUMBLING_WALL);
+                    
+                    int rand = RANDOM.nextInt(3);
+                    if(rand == 0){
+                      
+                      crumbling=crumbling.concat(Sq.constant(Block.BONUS_BOMB)); 
+                    }else if(rand == 1){
+                        
+                        crumbling=crumbling.concat(Sq.constant(Block.BONUS_RANGE));
+                    }else if (rand == 2){
+                      
+                      crumbling=crumbling.concat(Sq.constant(Block.FREE));
+                    }
                     
                     
+                    blocksNextBoard.add(crumbling);
+                    
+                    
+                }else if(board0.blockAt(c).isBonus()){
+                    
+
+                    Sq<Block> verify = board0.blocksAt(c);
+                    for(int i = 0 ; i<=Ticks.BONUS_DISAPPEARING_TICKS; i++){
+                        verify = verify.tail();
+                    }
+                    // 
+                    if(!(verify.head() == Block.FREE)){
+                        Sq<Block> bonusDisapearing = Sq.repeat(Ticks.BONUS_DISAPPEARING_TICKS, board0.blockAt(c));
+                        bonusDisapearing = bonusDisapearing.concat(Sq.constant(Block.FREE));
+                        blocksNextBoard.add(bonusDisapearing);
+                        
+                        
+                    }else{
+                        blocksNextBoard.add(board0.blocksAt(c).tail());
+                    }
+                    
+                }else{
+                    
+                    blocksNextBoard.add(board0.blocksAt(c).tail());
                 }
+                
+                
+            }else if (consumedBonus.contains(c)) {
+
+                blocksNextBoard.add(Sq.constant(Block.FREE));
+
+            }else{
+                
+                blocksNextBoard.add(board0.blocksAt(c).tail());
+            
             }
+            
         }
         
         return new Board(blocksNextBoard); 
@@ -406,6 +421,11 @@ public final class GameState {
                         canPut = false;
                     }
 
+                }
+                for(Bomb b : bombs1){
+                    if(b.position().equals(p.position().containingCell())){
+                        canPut = false;
+                    }
                 }
                 if (canPut) {
                     bombs1.add(p.newBomb());

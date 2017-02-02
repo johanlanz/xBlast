@@ -59,8 +59,8 @@ public class RandomTestGame {
     @Test
     public void testPositionsRandomGame() throws InterruptedException, IOException, URISyntaxException {
         String fileName = getClass().getResource("/stage6files/randomgame_positions.txt").toURI().getPath();
-		fileName = fileName.substring(1, fileName.length());
-        Stream<String> player_positions = Files.lines(Paths.get(fileName));
+        fileName = fileName.substring(1, fileName.length());
+		Stream<String> player_positions = Files.lines(Paths.get(fileName));
     	Iterator<String> pos_iterator = player_positions.iterator();
     	
         RandomEventGenerator randEvents = new RandomEventGenerator(2016, 30, 100);
